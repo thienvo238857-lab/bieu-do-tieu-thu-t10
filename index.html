@@ -10,7 +10,7 @@ button{border:1px solid #d1d5db;background:#fff;color:#111;padding:6px 14px;bord
 button.on{background:#c00000;border-color:#c00000;color:#fff}
 .card{background:#fff;border:1px solid #d1d5db;margin-bottom:18px;padding:10px 14px 4px}
 .card h2{font-size:22px;margin:6px 0 4px;text-align:center;color:#c00000;text-transform:uppercase}
-.card{overflow-x:auto}.cw,.cw2{min-width:1500px}.card h2,.kpi{position:sticky;left:0;max-width:calc(100vw - 60px);margin-left:auto;margin-right:auto}.cw{position:relative;height:580px}.cw2{position:relative;height:260px;border-top:1px dashed #d1d5db;margin-top:8px;padding-top:6px}
+.card{overflow-x:auto}.cw,.cw2{min-width:1500px}.h3{font-size:18px;margin:10px 0 0;text-align:center;color:#c00000;text-transform:uppercase;position:sticky;left:0;max-width:calc(100vw - 60px);margin-left:auto;margin-right:auto}.card h2,.kpi{position:sticky;left:0;max-width:calc(100vw - 60px);margin-left:auto;margin-right:auto}.cw{position:relative;height:580px}.cw2{position:relative;height:260px;border-top:1px dashed #d1d5db;margin-top:8px;padding-top:6px}
 .tw{overflow-x:auto;margin:6px 0 10px;font:12px 'Times New Roman',Times,serif}.tw table{border-collapse:collapse;white-space:nowrap;margin:0 auto}.tw th,.tw td{border:1px solid #d1d5db;padding:4px 7px;text-align:center}.tw th{background:#f3f4f6}.tw td{color:#1d4ed8;font-weight:bold}.tw td.mo{background:#dcfce7;color:#166534}.kpi{text-align:center;color:#111;font:16px 'Times New Roman',Times,serif;margin-bottom:6px}.kpi b{color:#c00000;font-weight:800}.tot{border-top:1px solid #e5e7eb;margin-top:6px}
 .tot div{display:flex;gap:40px;padding:8px 20px;border-bottom:1px solid #e5e7eb;font-weight:bold;font-size:17px}
 .tot span:first-child{text-align:right;flex:1}.tot span:last-child{min-width:110px;text-align:left}
@@ -45,13 +45,14 @@ function build(){charts.forEach(c=>c.destroy());charts=[];const g=document.getEl
   const avgl=days.map(d=>{const s=S[d];if(!s||d>last||s.sl<=0)return null;if(rate)return s.slc>0?s.v[7]/s.slc*100:null;return s.v[m.k]>0?s.v[m.k]/s.sl*1000:null});
   const mavg=ts?(rate?tv/ts*100:tv/ts*1000):null;
   const noData=bars.every(v=>v===null);
+  const sub=rate?"Biểu đồ tỉ lệ lỗi nắp bình quân theo ngày nhà máy "+NAME[plant]+" tháng 10":"Biểu đồ bình quân "+m.t+" trên 1.000 sp nhà máy "+NAME[plant]+" tháng 10";
   const card=document.createElement('div');card.className='card';
   const row=(a,b)=>`<div><span>${a}</span><span>${b}</span></div>`;
   const pu=rate?'%':m.u+'/1.000 sp';const avg=ts?(rate?tv/ts*100:tv/ts*1000):null;
   const tot=avg===null?'Chưa có dữ liệu cho lựa chọn này':'Bình quân tháng: <b>'+fmt(avg,rate?3:2)+'</b> '+pu+' · tổng <b>'+fmt(tv)+'</b> '+(rate?'sp lỗi nắp':m.u)+' / <b>'+fmt(ts)+'</b> sp'+(rate?' yến chai':'')+' (<b>'+nd+'</b> ngày)';
   const dd=days.filter(d=>d<=last),f2=v=>v===null?'–':fmt(v,rate?3:2);
   const tw='<div class="tw"><table><tr><th>Ngày</th>'+dd.map(d=>'<th>'+d+'/10</th>').join('')+'<th>Cả tháng</th></tr><tr><th>Bình quân ('+pu+')</th>'+dd.map(d=>'<td>'+f2(avgl[d-1])+'</td>').join('')+'<td class="mo">'+f2(mavg)+'</td></tr></table></div>';
-  card.innerHTML=`<h2>Biểu đồ ${m.t} theo sản lượng nhà máy ${NAME[plant]} tháng 10</h2><div class="kpi">${tot}</div>${noData?'<p style="text-align:center;padding:60px 0;color:#6b7280">Nhà máy này không có số liệu cho chỉ tiêu này</p>':'<div class="cw"><canvas></canvas></div><div class="cw2"><canvas></canvas></div>'}`;
+  card.innerHTML=`<h2>Biểu đồ ${m.t} theo sản lượng nhà máy ${NAME[plant]} tháng 10</h2><div class="kpi">${tot}</div>${noData?'<p style="text-align:center;padding:60px 0;color:#6b7280">Nhà máy này không có số liệu cho chỉ tiêu này</p>':'<div class="cw"><canvas></canvas></div><h3 class="h3">'+sub+'</h3><div class="cw2"><canvas></canvas></div>'}`;
   g.appendChild(card);if(noData)continue;
   const box=c=>({backgroundColor:'#fff',borderColor:c,borderWidth:1,borderRadius:0,padding:{top:2,bottom:2,left:4,right:4},color:'#000',font:{size:13,weight:'bold'}});
   const cv=card.querySelectorAll('canvas');
@@ -63,14 +64,14 @@ function build(){charts.forEach(c=>c.destroy());charts=[];const g=document.getEl
    options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:34,right:10}},interaction:{mode:'index',intersect:false},
     plugins:{legend:{position:'bottom',labels:{font:{size:15,style:'italic'}}},datalabels:{display:c=>c.dataset.data[c.dataIndex]!==null}},
     scales:{x:{ticks:{maxRotation:45,minRotation:45,font:{size:13}},grid:{display:false}},
-     y:{position:'left',beginAtZero:true,grace:'18%',title:{display:true,text:m.lb,font:{size:15,style:'italic',weight:'bold'}},grid:{color:'#e5e7eb'}},
-     y1:{position:'right',beginAtZero:true,grace:'18%',title:{display:true,text:'Sản lượng sản xuất (sp)',font:{size:15,style:'italic',weight:'bold'}},grid:{drawOnChartArea:false}}}}}));
+     y:{afterFit:s=>{s.width=100},position:'left',beginAtZero:true,grace:'18%',title:{display:true,text:m.lb,font:{size:15,style:'italic',weight:'bold'}},grid:{color:'#e5e7eb'}},
+     y1:{afterFit:s=>{s.width=100},position:'right',beginAtZero:true,grace:'18%',title:{display:true,text:'Sản lượng sản xuất (sp)',font:{size:15,style:'italic',weight:'bold'}},grid:{drawOnChartArea:false}}}}}));
   const lbl=days.map(d=>d+'/10/2026');
   charts.push(new Chart(cv[1],{type:'line',data:{labels:lbl,datasets:[
    {label:'Bình quân '+unit,data:avgl,borderColor:'#2563eb',backgroundColor:'#2563eb',borderWidth:3,pointRadius:4,tension:.15,spanGaps:true,datalabels:{backgroundColor:'#fff',borderColor:'#2563eb',borderWidth:1,borderRadius:0,padding:{top:2,bottom:2,left:3,right:3},color:'#1d4ed8',font:{size:11,weight:'bold'},anchor:'center',align:'bottom',offset:8,formatter:v=>fmt(v,rate?3:2)}},
    {label:'Bình quân tháng: '+(mavg===null?'–':fmt(mavg,rate?3:2)),data:days.map(d=>d>last?null:mavg),borderColor:'#16a34a',borderWidth:2,borderDash:[8,5],pointRadius:0,datalabels:{display:false}}]},
-   options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:22}},plugins:{legend:{position:'bottom',labels:{font:{size:14,style:'italic'}}},datalabels:{display:c=>c.dataset.data[c.dataIndex]!==null}},
-    scales:{x:{ticks:{maxRotation:45,minRotation:45,font:{size:12}},grid:{display:false}},y:{min:-Math.max(...avgl.filter(v=>v!==null),mavg||0)*0.15,ticks:{callback:v=>v<0?'':v},title:{display:true,text:'Bình quân '+unit,font:{size:14,style:'italic',weight:'bold'}},grid:{color:'#e5e7eb'}}}}}));
+   options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:22,right:10}},plugins:{legend:{position:'bottom',labels:{font:{size:14,style:'italic'}}},datalabels:{display:c=>c.dataset.data[c.dataIndex]!==null}},
+    scales:{x:{ticks:{maxRotation:45,minRotation:45,font:{size:12}},grid:{display:false}},y1:{position:'right',ticks:{display:false},grid:{display:false,drawOnChartArea:false},border:{display:false},afterFit:s=>{s.width=100}},y:{afterFit:s=>{s.width=100},min:-Math.max(...avgl.filter(v=>v!==null),mavg||0)*0.15,ticks:{callback:v=>v<0?'':v},title:{display:true,text:'Bình quân '+unit,font:{size:14,style:'italic',weight:'bold'}},grid:{color:'#e5e7eb'}}}}}));
  }}
 const sel=document.getElementById('sel');
 [['BC','Bình Chiểu'],['LL','Lò Lu'],['ALL','Cả hai nhà máy']].forEach(([k,t])=>{const b=document.createElement('button');b.textContent=t;b.className=k===plant?'on':'';b.onclick=()=>{plant=k;[...sel.children].forEach(x=>x.className=x===b?'on':'');build()};sel.appendChild(b)});
